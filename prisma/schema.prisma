@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                    String         @id
+  email                 String         @unique
+  name                  String?
+  image                 String?
+  role                  String         @default("user")
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  bio                   String?
+  acceptTips            Boolean        @default(false)
+  allowComments         Boolean        @default(true)
+  allowEmailReplies     Boolean        @default(false)
+  allowPrivateNotes     Boolean        @default(true)
+  replyToEmail          String?
+  bookmarks             Bookmark[]
+  comments              Comment[]
+  commentLikes          CommentLike[]
+  following             Follows[]      @relation("follower")
+  followers             Follows[]      @relation("following")
+  likes                 Like[]
+  notificationsSent     Notification[] @relation("NotificationActor")
+  notificationsReceived Notification[] @relation("NotificationRecipient")
+  posts                 Post[]
+  privateNotes          PrivateNote[]
+}
+
+model Follows {
+  followerId  String
+  followingId String
+  follower    User   @relation("follower", fields: [followerId], references: [id])
+  following   User   @relation("following", fields: [followingId], references: [id])
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+model Post {
+  id              String         @id @default(cuid())
+  title           String
+  titleContent    Json?
+  slug            String         @unique
+  content         Json?
+  published       Boolean        @default(false)
+  excerpt         String?
+  coverImage      String?
+  aiSummaryShort  String?
+  aiSummaryLong   String?
+  aiSummaryBullets Json?
+  aiSummaryHash   String?
+  aiSummaryGeneratedAt DateTime?
+  aiChecks        Json?
+  aiChecksHash    String?
+  aiChecksGeneratedAt DateTime?
+  authorId        String
+  categoryId      String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  canonicalUrl    String?
+  metaDescription String?
+  metaTitle       String?
+  bookmarks       Bookmark[]
+  comments        Comment[]
+  likes           Like[]
+  notifications   Notification[]
+  author          User           @relation(fields: [authorId], references: [id])
+  category        Category?      @relation(fields: [categoryId], references: [id])
+  views           PostView[]
+  tags            Tag[]          @relation("PostToTag")
+  privateNotes    PrivateNote[]
+  aiSnapshots     PostAiSnapshot[]
+  aiJobs          AiJob[]
+
+  @@index([authorId])
+  @@index([slug])
+}
+
+enum AiSnapshotTaskType {
+  POST_SUMMARY
+  PUBLISH_CHECKS
+}
+
+enum AiJobType {
+  POST_SUMMARY
+}
+
+enum AiJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model PostAiSnapshot {
+  id          String             @id @default(cuid())
+  postId      String
+  taskType    AiSnapshotTaskType
+  contentHash String
+  provider    String
+  model       String
+  output      Json
+  createdAt   DateTime           @default(now())
+  post        Post               @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([taskType])
+  @@index([contentHash])
+}
+
+model AiJob {
+  id         String      @id @default(cuid())
+  type       AiJobType
+  postId     String
+  status     AiJobStatus @default(PENDING)
+  payload    Json?
+  attempts   Int         @default(0)
+  maxAttempts Int        @default(3)
+  runAt      DateTime    @default(now())
+  lockedAt   DateTime?
+  dedupeKey  String      @unique
+  lastError  String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  post       Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([status, runAt])
+  @@index([postId])
+}
+
+model PrivateNote {
+  id            String   @id @default(cuid())
+  content       String
+  selectionText String?
+  authorId      String
+  postId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  author        User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post          Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[]
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String @unique
+  slug  String @unique
+  posts Post[] @relation("PostToTag")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Comment {
+  id            String         @id @default(cuid())
+  content       String
+  userId        String
+  postId        String
+  parentId      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  parent        Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies       Comment[]      @relation("CommentReplies")
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes         CommentLike[]
+  notifications Notification[]
+
+  @@index([postId])
+  @@index([parentId])
+}
+
+model PostView {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String?
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  recipientId String
+  actorId     String
+  type        String
+  postId      String?
+  commentId   String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  actor       User     @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  comment     Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  recipient   User     @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId])
+}

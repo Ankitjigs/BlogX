@@ -1,0 +1,61 @@
+export const tiers = [
+  {
+    name: "Starter",
+    id: "tier-starter",
+    href: "/sign-up",
+    priceMonthly: "$0",
+    description: "Perfect for individuals just starting their writing journey.",
+    features: [
+      "Unlimited posts",
+      "Basic block editor",
+      "Standard BlogX domain",
+      "Community support",
+      "Basic analytics",
+    ],
+    featured: false,
+    idealFor: "Ideal for individuals",
+    idealColor:
+      "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+    borderColor: "ring-slate-400 dark:ring-slate-500",
+  },
+  {
+    name: "Pro",
+    id: "tier-pro",
+    href: "/sign-up",
+    priceMonthly: "$19",
+    description: "For serious creators who want to grow their audience.",
+    features: [
+      "Unlimited posts",
+      "Custom domains",
+      "AI Writing Assistant (100k words)",
+      "Advanced SEO tools",
+      "Priority email support",
+      "Custom branding",
+    ],
+    featured: true,
+    idealFor: "Ideal for startups & small companies",
+    idealColor:
+      "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+    borderColor: "ring-indigo-500 dark:ring-indigo-500",
+  },
+  {
+    name: "Team",
+    id: "tier-team",
+    href: "/sign-up",
+    priceMonthly: "$49",
+    description: "For publications and small teams collaborating together.",
+    features: [
+      "Everything in Pro",
+      "Up to 20 team members",
+      "Editorial workflow & approvals",
+      "Unlimited AI words",
+      "API access",
+      "24/7 dedicated support",
+    ],
+    featured: false,
+    idealFor: "Ideal for enterprise companies",
+    idealColor:
+      "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+    borderColor: "ring-purple-500 dark:ring-purple-500",
+  },
+];
