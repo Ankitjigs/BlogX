@@ -21,6 +21,12 @@ BlogX is a modern, full-stack blogging platform built with Next.js 16, designed 
 -   **SEO Optimized:**
     -   Dynamic meta tags, Open Graph support, and canonical URLs.
     -   Sitemap and Robots.txt generation.
+-   **✨ AI-Powered Enhancements:**
+    -   Smart Post Summary Generation (Short, Long, Bullets).
+    -   AI SEO & Content suggestions (Titles, Excerpts, Tags, and Meta descriptions).
+    -   Publish Readiness Checks (Readability, Structure, SEO scores).
+    -   Contextual Text Rewriter inside the editor.
+    -   Multi-provider LLM support (Gemini & Groq natively integrated).
 -   **Responsive Design:** Mobile-first approach using Tailwind CSS.
 
 ## 🛠️ Tech Stack
@@ -32,6 +38,7 @@ BlogX is a modern, full-stack blogging platform built with Next.js 16, designed 
 -   **ORM:** [Prisma](https://www.prisma.io/)
 -   **Auth:** [Clerk](https://clerk.com/)
 -   **Storage:** Supabase Storage
+-   **AI Providers:** Google Gemini, Groq
 -   **Testing:** Jest, React Testing Library
 
 ## 🏁 Getting Started
@@ -75,6 +82,10 @@ BlogX is a modern, full-stack blogging platform built with Next.js 16, designed 
     # Supabase Storage
     NEXT_PUBLIC_SUPABASE_URL=https://[ref].supabase.co
     NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+    
+    # AI Providers (At least one required for AI enhancements)
+    GEMINI_API_KEY=your_gemini_api_key
+    GROQ_API_KEY=gsk_your_groq_api_key
     ```
 
 4.  Initialize the database:
